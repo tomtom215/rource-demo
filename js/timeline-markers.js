@@ -363,11 +363,19 @@ function formatWeekLabel(date) {
 
 /**
  * Formats a month label.
+ *
+ * Uses a four-digit year deliberately. With `year: '2-digit'` this produced
+ * strings such as "Aug 24" that are byte-identical to the day/week labels
+ * emitted by `formatDayLabel`/`formatWeekLabel` ("Aug 24" = August 24th) while
+ * meaning something entirely different (August 2024). A reader had no way to
+ * tell which scale an axis label referred to. "Aug 2024" is unambiguous in
+ * every locale and cannot be misread as a day of the month.
+ *
  * @param {Date} date - Date to format
  * @returns {string} Formatted label
  */
 function formatMonthLabel(date) {
-    return date.toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
+    return date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
 }
 
 /**

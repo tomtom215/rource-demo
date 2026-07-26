@@ -2,56 +2,78 @@
 // Copyright (C) 2026 Tom F <https://github.com/tomtom215>
 
 /**
- * Sidebar panel HTML templates.
- * Extracted from index.html for maintainability.
- * Each function returns HTML for one sidebar section.
+ * Landing panel for the published demo.
+ *
+ * Replaces the "Visualize This Project" showcase in the demo build. That card
+ * offered to visualize Rource's own history from a repository that is not
+ * public, and sat above a Commits/Files/Authors stat block that actually
+ * described whichever repository was currently loaded — so it read as though
+ * those were Rource's numbers.
+ *
+ * What a first-time visitor should see instead is the thing the demo is
+ * actually good at: eight real project histories, bundled and one click away,
+ * and the fact that their own repository can be visualized without anything
+ * leaving the browser.
+ *
+ * Chips use `.repo-chip` + `data-repo`, which initRepoChips() binds by
+ * selector, so they need no separate wiring.
  */
+export function getDemoWelcomePanelTemplate() {
+    const repos = [
+        ['facebook/react', 'React', '#61dafb'],
+        ['torvalds/linux', 'Linux', '#f1c40f'],
+        ['microsoft/vscode', 'VS Code', '#007acc'],
+        ['rust-lang/rust', 'Rust', '#dea584'],
+        ['golang/go', 'Go', '#00add8'],
+        ['denoland/deno', 'Deno', 'currentColor'],
+        ['sveltejs/svelte', 'Svelte', '#ff3e00'],
+        ['vuejs/vue', 'Vue', '#42b883'],
+    ];
 
-export function getShowcasePanelTemplate() {
+    const chips = repos
+        .map(
+            ([repo, label, color]) => `
+                    <button type="button" class="repo-chip repo-chip-cached demo-repo-chip" data-repo="${repo}"
+                            title="Load the bundled ${label} history — no network request">
+                        <svg viewBox="0 0 16 16" fill="${color}" aria-hidden="true"><circle cx="8" cy="8" r="3"/></svg>
+                        ${label}
+                    </button>`
+        )
+        .join('');
+
     return `
-            <span class="showcase-badge">Featured</span>
-            <svg class="showcase-icon" viewBox="0 0 100 100" aria-hidden="true">
-                <circle cx="50" cy="50" r="45" fill="#e94560"/>
-                <circle cx="50" cy="30" r="8" fill="white"/>
-                <circle cx="30" cy="60" r="6" fill="white"/>
-                <circle cx="70" cy="55" r="6" fill="white"/>
-                <circle cx="50" cy="75" r="5" fill="white"/>
-                <line x1="50" y1="38" x2="50" y2="70" stroke="white" stroke-width="2"/>
-                <line x1="50" y1="50" x2="32" y2="58" stroke="white" stroke-width="2"/>
-                <line x1="50" y1="50" x2="68" y2="53" stroke="white" stroke-width="2"/>
-            </svg>
-            <h2>Visualize This Project</h2>
-            <p>Watch the complete development history of Rource itself. Cached locally - no API limits.</p>
-            <div class="showcase-buttons">
-                <button type="button" id="btn-visualize-rource" class="showcase-btn" disabled>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z"/>
-                    </svg>
-                    Visualize Rource
-                </button>
-                <button type="button" id="btn-refresh-rource" class="showcase-btn-secondary" title="Fetch latest commits from GitHub">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M23 4v6h-6M1 20v-6h6"/>
-                        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
-                    </svg>
-                    Fetch Latest
-                </button>
-            </div>
-            <div id="refresh-status" class="refresh-status hidden"></div>
-            <div class="showcase-stats">
-                <div class="showcase-stat" title="Visualization steps (file changes grouped by time)">
-                    <div class="showcase-stat-value" id="showcase-commits">--</div>
-                    <div class="showcase-stat-label">Commits</div>
-                </div>
-                <div class="showcase-stat">
-                    <div class="showcase-stat-value" id="showcase-files">--</div>
-                    <div class="showcase-stat-label">Files</div>
-                </div>
-                <div class="showcase-stat">
-                    <div class="showcase-stat-value" id="showcase-authors">--</div>
-                    <div class="showcase-stat-label">Authors</div>
-                </div>
-            </div>`;
+            <h2 class="demo-welcome-title">Pick a repository</h2>
+            <p class="demo-welcome-lead">
+                Eight real project histories ship with this page. They load
+                straight from disk &mdash; no API calls, no rate limits, nothing to
+                wait for.
+            </p>
+            <div class="repo-chips demo-repo-chips">${chips}</div>
+
+            <div class="demo-welcome-divider" role="separator"></div>
+
+            <h3 class="demo-welcome-subtitle">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Or your own repository
+            </h3>
+            <p class="demo-welcome-lead">
+                Everything runs in WebAssembly on this page. Your log is read in
+                the browser and never uploaded &mdash; there is no server to upload
+                it to.
+            </p>
+            <button type="button" id="btn-demo-load-own" class="showcase-btn demo-welcome-cta">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Visualize your repository
+            </button>`;
 }
 
 export function getGithubPanelTemplate() {
@@ -81,7 +103,7 @@ export function getGithubPanelTemplate() {
                             <svg viewBox="0 0 16 16" fill="#61dafb"><circle cx="8" cy="8" r="3"/></svg>
                             React
                         </button>
-                        <button type="button" class="repo-chip repo-chip-cached" data-repo="vuejs/core" title="Pre-cached - instant loading">
+                        <button type="button" class="repo-chip repo-chip-cached" data-repo="vuejs/vue" title="Pre-cached - instant loading">
                             <svg viewBox="0 0 16 16" fill="#42b883"><circle cx="8" cy="8" r="3"/></svg>
                             Vue
                         </button>

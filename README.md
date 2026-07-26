@@ -21,8 +21,9 @@ no server, and no repository data leaves the browser.
 | Beams | A contributor modifying a file |
 | Grey circles | Directories, linked parent → child |
 
-Bundled sample histories include React, Go, Rust, Linux, VS Code, Svelte and
-Deno, or you can point it at any public GitHub repository from the sidebar.
+Bundled sample histories cover React, Vue, Svelte, Deno, Rust, VS Code, Go and
+Linux — the eight repositories in `demo-data/` — or you can point it at any
+public GitHub repository from the sidebar.
 
 ---
 
@@ -43,32 +44,9 @@ frame time, entity count, draw calls and the active backend.
 
 This repository contains **only the compiled demo** — the WebAssembly binary,
 its JavaScript glue, and static assets. It is generated from the Rource source
-tree and carries no source history of its own, so its commit log says nothing
-about how the project was built.
+tree and carries no source history of its own.
 
 ## License
 
-Rource is licensed under the **GPL-3.0**; the full text is in [LICENSE](LICENSE).
-
-This repository distributes object code (a compiled `.wasm` binary) rather than
-source. In accordance with **GPL-3.0 section 6(b)**, the copyright holder offers
-to provide the Corresponding Source for the binary published here, for a period
-of three years, to anyone who requests it — open an issue on this repository or
-contact the author via <https://github.com/tomtom215>.
-
-The Rource source repository is not currently public. That is a deliberate
-choice about timing, not a restriction on your rights under the GPL: the offer
-above stands regardless.
-
-### Third-party components
-
-The binary statically links third-party Rust crates, all under permissive
-licences (MIT, Apache-2.0, BSD, ISC, Zlib and similar). Their required copyright
-notices and licence texts are reproduced in
-[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), generated from the resolved
-dependency graph of this exact build.
-
-### Attribution
-
-Inspired by [Gource](https://github.com/acaudwell/Gource) by Andrew Caudwell.
-Rource is an independent rewrite from scratch and shares no code with it.
+GPL-3.0. Inspired by [Gource](https://github.com/acaudwell/Gource) by Andrew
+Caudwell; Rource is an independent rewrite from scratch.

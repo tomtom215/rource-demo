@@ -64,15 +64,19 @@ const playbackUICache = {
  * Formats a Unix timestamp to a readable date string.
  *
  * @param {number} timestamp - Unix timestamp in seconds
- * @param {boolean} [short=false] - If true, use short format with 2-digit year (e.g., "Jan 20 '24")
+ * @param {boolean} [short=false] - If true, omit the weekday but keep a full year
  * @returns {string} Formatted date string or '--' if invalid
  */
 function formatDate(timestamp, short = false) {
     if (!timestamp || timestamp <= 0) return '--';
     const date = new Date(timestamp * 1000);
     if (short) {
-        // Include 2-digit year for context in long repos
-        return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' });
+        // Four-digit year, despite this being the "short" form. With
+        // `year: '2-digit'` the timeline's range endpoints rendered as
+        // "Jul 25, 24" — indistinguishable in shape from the axis's month
+        // labels, where "Jul 24, 26" would read as a day rather than July 2026.
+        // The two extra characters buy an unambiguous label.
+        return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
     }
     return date.toLocaleDateString(undefined, {
         year: 'numeric',
@@ -129,7 +133,7 @@ export function updatePlaybackUI() {
 
     const playing = safeWasmCall('isPlaying', () => rource.isPlaying(), false);
     const total = safeWasmCall('commitCount', () => rource.commitCount(), 0);
-    const current = safeWasmCall('currentCommit', () => rource.currentCommit(), 0);
+    const current = safeWasmCall('appliedCommit', () => rource.appliedCommit(), 0);
     const atEnd = total > 0 && current >= total - 1 && !playing;
 
     // Only update play button if state changed (avoids innerHTML allocation)
@@ -323,6 +327,6 @@ export function isAtEnd() {
     if (!rource) return false;
 
     const total = safeWasmCall('commitCount', () => rource.commitCount(), 0);
-    const current = safeWasmCall('currentCommit', () => rource.currentCommit(), 0);
+    const current = safeWasmCall('appliedCommit', () => rource.appliedCommit(), 0);
     return total > 0 && current >= total - 1;
 }

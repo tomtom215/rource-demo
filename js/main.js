@@ -50,6 +50,7 @@ import { initWindowEvents } from './features/window-events.js';
 import { initScreenshot, setAnimateCallback, captureScreenshot } from './features/screenshot.js';
 import { initFullscreen, toggleFullscreen } from './features/fullscreen.js';
 import { initTheme, toggleTheme } from './features/theme.js';
+import { initFitView } from './features/fit-view.js';
 import { initHelp, showHelp } from './features/help.js';
 import { initKeyboard } from './features/keyboard.js';
 import { initFullMapExport, setFullMapAnimateCallback } from './features/full-map-export.js';
@@ -196,6 +197,7 @@ async function main() {
         initHelp();
         initFullMapExport();
         initFontSizeControl();
+        initFitView();
         initVideoRecording();
         initBottomSheet();
         initViewManager();

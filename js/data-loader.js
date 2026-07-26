@@ -14,9 +14,10 @@ import { safeWasmCall } from './wasm-api.js';
 import { debugLog, devConsole } from './telemetry.js';
 import { parseUrlParams } from './url-state.js';
 import { ROURCE_CACHED_DATA, DEMO_DATA, ROURCE_STATS, getFullCachedData } from './cached-data.js';
-import { CONFIG } from './config.js';
-import { fetchExtendedLog } from './static-logs.js';
 import { applyPanelPreferences } from './preferences.js';
+import { CONFIG } from './config.js';
+import { setRepoTotals } from './features/live-legend.js';
+import { fetchExtendedLog } from './static-logs.js';
 
 // Callbacks for UI updates
 let onDataLoadedCallback = null;
@@ -178,10 +179,14 @@ export function loadLogData(content, format = 'custom', options = {}) {
         const dirCount = safeWasmCall('getCommitDirectoryCount', () => rource.getCommitDirectoryCount(), 0);
 
         // Update stats overlay (show display commits, which may include merge commits)
-        if (elements.statCommits) elements.statCommits.textContent = displayCommits;
-        if (elements.statFiles) elements.statFiles.textContent = stats.files;
-        if (elements.statDirs) elements.statDirs.textContent = dirCount;
-        if (elements.statAuthors) elements.statAuthors.textContent = stats.authors.size;
+        // Repository-wide totals. The live values are written every frame by
+        // live-legend.js; these are the denominators it shows them against.
+        setRepoTotals({
+            commits: displayCommits,
+            files: stats.files,
+            dirs: dirCount,
+            authors: stats.authors.size,
+        });
 
         // Update state (store both display and visualization counts)
         setState({

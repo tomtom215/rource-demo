@@ -208,6 +208,25 @@ function setSheetPosition(translateY) {
 }
 
 /**
+ * Moves the sheet fully off-screen without depending on its measured height.
+ *
+ * `snapTo('HIDDEN')` would otherwise translate by `offsetHeight - 0`. During
+ * `initBottomSheet()` the sheet has not been laid out yet, so `offsetHeight`
+ * is 0 and the "hide" resolves to `translateY(0)` — leaving the sheet fully
+ * expanded over the visualization on first paint. A percentage translate is
+ * resolved against the element's own border box by the compositor, so it
+ * hides correctly whether or not layout has happened yet.
+ *
+ * `getCurrentTranslate()` reads the transform back through `DOMMatrix`, which
+ * resolves the percentage to pixels, so drag maths downstream is unaffected.
+ */
+function setSheetHidden() {
+    if (!sheet) return;
+    sheet.style.transform = 'translateY(100%)';
+    currentTranslate = sheet.offsetHeight;
+}
+
+/**
  * Animates the sheet to a snap point.
  * @param {string} snapName - Target snap point
  * @param {boolean} [instant=false] - Skip animation
@@ -259,16 +278,22 @@ function snapTo(snapName, instant = false) {
     // Update ARIA
     sheet.setAttribute('aria-hidden', snapName === 'HIDDEN' ? 'true' : 'false');
 
+    // HIDDEN is positioned by percentage so it does not depend on a measured
+    // height that may still be 0 during initialisation. See setSheetHidden().
+    const applyPosition = snapName === 'HIDDEN'
+        ? setSheetHidden
+        : () => setSheetPosition(targetTranslate);
+
     if (instant) {
         sheet.style.transition = 'none';
-        setSheetPosition(targetTranslate);
+        applyPosition();
         // Force reflow
         void sheet.offsetHeight;
         sheet.style.transition = '';
     } else {
         // Use CSS transition for smooth animation
         sheet.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        setSheetPosition(targetTranslate);
+        applyPosition();
         // Clear transition after animation
         setTimeout(() => {
             if (sheet) sheet.style.transition = '';

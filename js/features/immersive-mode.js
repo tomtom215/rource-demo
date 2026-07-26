@@ -424,7 +424,7 @@ function updateImmersiveTimeDisplay() {
     const timeDisplay = document.getElementById('immersive-time-display');
     if (!timeDisplay) return;
 
-    const current = safeWasmCall('currentCommit', () => rource.currentCommit(), 0);
+    const current = safeWasmCall('appliedCommit', () => rource.appliedCommit(), 0);
     const total = safeWasmCall('commitCount', () => rource.commitCount(), 0);
 
     if (total > 0) {

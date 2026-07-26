@@ -93,7 +93,10 @@ export const REACT_LOG = `1737849600|Sebastian Markbage|M|packages/react/src/Rea
  * Vue.js - The Progressive JavaScript Framework
  * Repository: vuejs/vue
  * Sample: Recent 200 commits
- */
+ *
+ * The key must match demo-data/vuejs-vue.log: fetchExtendedLog() derives the
+ * filename from `owner-repo`, so a key that disagrees with the shipped file
+ * 404s and silently falls back to this small embedded sample. */
 export const VUE_LOG = `1737849600|Evan You|M|src/core/instance/index.js
 1737849600|Evan You|M|src/core/vdom/create-component.js
 1737763200|Evan You|M|src/platforms/web/runtime/index.js
@@ -332,7 +335,6 @@ export const LINUX_LOG = `1737849600|Linus Torvalds|M|kernel/sched/core.c
 export const STATIC_LOGS = {
     'facebook/react': REACT_LOG,
     'vuejs/vue': VUE_LOG,
-    'vuejs/core': VUE_LOG,
     'sveltejs/svelte': SVELTE_LOG,
     'denoland/deno': DENO_LOG,
     'rust-lang/rust': RUST_LOG,
@@ -355,12 +357,6 @@ export const STATIC_LOG_METADATA = {
         name: 'Vue.js',
         description: 'The Progressive JavaScript Framework',
         language: 'JavaScript',
-        color: '#42b883',
-    },
-    'vuejs/core': {
-        name: 'Vue.js',
-        description: 'The Progressive JavaScript Framework',
-        language: 'TypeScript',
         color: '#42b883',
     },
     'sveltejs/svelte': {

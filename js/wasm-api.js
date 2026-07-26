@@ -216,7 +216,7 @@ export function getCommitCount() {
 export function getCurrentCommit() {
     const rource = getRource();
     if (rource) {
-        return safeWasmCall('currentCommit', () => rource.currentCommit(), 0);
+        return safeWasmCall('appliedCommit', () => rource.appliedCommit(), 0);
     }
     return 0;
 }
