@@ -14,9 +14,9 @@ import { safeWasmCall } from './wasm-api.js';
 import { debugLog, devConsole } from './telemetry.js';
 import { parseUrlParams } from './url-state.js';
 import { ROURCE_CACHED_DATA, DEMO_DATA, ROURCE_STATS, getFullCachedData } from './cached-data.js';
+import { applyPanelPreferences } from './preferences.js';
 import { CONFIG } from './config.js';
 import { fetchExtendedLog } from './static-logs.js';
-import { applyPanelPreferences } from './preferences.js';
 
 // Callbacks for UI updates
 let onDataLoadedCallback = null;

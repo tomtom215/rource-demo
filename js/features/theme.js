@@ -9,9 +9,63 @@
  */
 
 import { getElement } from '../dom.js';
-import { addManagedEventListener } from '../state.js';
+import { addManagedEventListener, getRource } from '../state.js';
+import { safeWasmVoid } from '../wasm-api.js';
 
 const THEME_KEY = 'rource_theme';
+
+/**
+ * Pushes the theme's canvas background colour into the WASM renderer.
+ *
+ * The renderer clears the framebuffer to `settings.display.background_color`,
+ * which defaults to black. Toggling the theme only swapped CSS custom
+ * properties, so in light theme the surrounding chrome turned light while the
+ * visualization itself stayed pure black — the largest element on the page
+ * ignored the theme entirely, and low-contrast dark labels sat on it.
+ *
+ * `--bg-canvas` stays the single source of truth: it is declared per theme in
+ * CSS and read back here, so the renderer can never drift from the stylesheet.
+ */
+/**
+ * Bloom's bright-pass threshold, mirroring DEFAULT_BLOOM_THRESHOLD in
+ * crates/rource-render/src/backend/webgl2/bloom.rs.
+ */
+const BLOOM_BRIGHT_PASS_THRESHOLD = 0.7;
+
+function syncCanvasBackground() {
+    const rource = getRource();
+    if (!rource) return;
+
+    const hex = getComputedStyle(document.documentElement)
+        .getPropertyValue('--bg-canvas')
+        .trim();
+
+    // setBackgroundColor accepts "#rrggbb" or "rrggbb" and ignores anything
+    // else, so guard here to avoid silently keeping a stale colour.
+    if (!/^#?[0-9a-fA-F]{6}$/.test(hex)) return;
+
+    safeWasmVoid('setBackgroundColor', () => rource.setBackgroundColor(hex));
+
+    // Bloom extracts every pixel brighter than the bright-pass threshold, blurs
+    // it, and adds it back. That models glow against a dark field, but a light
+    // canvas is itself above the threshold: the whole frame is extracted and
+    // summed with itself, so it clips to pure white and the theme colour is
+    // lost. Light theme's #dce0e5 is (0.863, 0.878, 0.898) — every channel is
+    // above 0.7, which is why enabling the light theme produced a white canvas
+    // rather than the intended tone.
+    //
+    // Keyed off measured luminance rather than the theme class so a custom
+    // background colour gets the same protection.
+    const n = hex.replace('#', '');
+    const r = parseInt(n.slice(0, 2), 16) / 255;
+    const g = parseInt(n.slice(2, 4), 16) / 255;
+    const b = parseInt(n.slice(4, 6), 16) / 255;
+    // Rec. 709 relative luminance, matching the bright-pass weighting.
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+    safeWasmVoid('setBloom', () =>
+        rource.setBloom(luminance < BLOOM_BRIGHT_PASS_THRESHOLD));
+}
 
 /**
  * Gets the current theme.
@@ -35,6 +89,7 @@ export function setTheme(theme) {
         document.documentElement.classList.remove('light-theme');
     }
     localStorage.setItem(THEME_KEY, theme);
+    syncCanvasBackground();
 }
 
 /**
@@ -47,6 +102,7 @@ export function toggleTheme() {
 
     const isLight = document.documentElement.classList.toggle('light-theme');
     localStorage.setItem(THEME_KEY, isLight ? 'light' : 'dark');
+    syncCanvasBackground();
 }
 
 /**
@@ -83,6 +139,11 @@ export function initTheme() {
             document.documentElement.classList.add('theme-manual');
         }
     }
+
+    // The inline <head> script applies the theme class before first paint, but
+    // the renderer is created later and always starts on its black default, so
+    // the canvas must be synced explicitly once WASM is available.
+    syncCanvasBackground();
 
     // Set up theme toggle button (managed for cleanup on WASM reinit)
     const themeToggle = getElement('themeToggle');

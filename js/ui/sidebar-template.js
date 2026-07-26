@@ -81,7 +81,7 @@ export function getGithubPanelTemplate() {
                             <svg viewBox="0 0 16 16" fill="#61dafb"><circle cx="8" cy="8" r="3"/></svg>
                             React
                         </button>
-                        <button type="button" class="repo-chip repo-chip-cached" data-repo="vuejs/core" title="Pre-cached - instant loading">
+                        <button type="button" class="repo-chip repo-chip-cached" data-repo="vuejs/vue" title="Pre-cached - instant loading">
                             <svg viewBox="0 0 16 16" fill="#42b883"><circle cx="8" cy="8" r="3"/></svg>
                             Vue
                         </button>
