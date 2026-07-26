@@ -1946,7 +1946,13 @@ export class Rource {
         return ret !== 0;
     }
     /**
-     * Resets the camera to fit all content.
+     * Resets the camera to fit all content and resumes auto-fit.
+     *
+     * Re-enabling auto-fit is the point of this call. Zooming or panning turns
+     * auto-fit off so the viewer keeps the framing they chose, but nothing
+     * turned it back on: a single scroll or drag left the camera fixed for the
+     * rest of the session while the scene kept growing past the edges of the
+     * viewport. A one-shot fit only papered over that until the next commit.
      */
     resetCamera() {
         wasm.rource_resetCamera(this.__wbg_ptr);
@@ -2022,10 +2028,11 @@ export class Rource {
      * Enables or disables auto-fit mode.
      *
      * When enabled, the camera automatically zooms out to keep all content visible
-     * as the visualization grows. Manual zoom/pan operations disable auto-fit.
+     * as the visualization grows. Manual zoom/pan operations disable auto-fit;
+     * `resetCamera()` re-enables it.
      *
-     * Auto-fit is disabled by default due to coordination issues with LOD culling
-     * and spatial indexing. Use `resetCamera()` for one-time camera fitting instead.
+     * Auto-fit is enabled by default. (This previously documented the opposite,
+     * contradicting the constructor, which has always set it on.)
      * @param {boolean} enabled
      */
     setAutoFit(enabled) {
