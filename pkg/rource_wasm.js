@@ -42,6 +42,23 @@ export class Rource {
         wasm.__wbg_rource_free(ptr, 0);
     }
     /**
+     * Returns the index of the last commit actually applied to the scene.
+     *
+     * The playback loop applies `commits[current]` and then advances the
+     * cursor, so `currentCommit()` is one ahead of what is rendered for the
+     * whole of playback. Driving the timeline from it meant the date label and
+     * the "commit N of M" counter always described the *next* commit: at slow
+     * speeds the clock read minutes or days ahead of the tree on screen.
+     *
+     * This is the index the visualization is showing, so it is the one the
+     * timeline, date and commit counter are derived from.
+     * @returns {number}
+     */
+    appliedCommit() {
+        const ret = wasm.rource_appliedCommit(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
      * Captures a screenshot and returns it as PNG data.
      *
      * Only works with software renderer. WebGL2/wgpu renderers don't support
@@ -134,7 +151,11 @@ export class Rource {
         return takeObject(ret);
     }
     /**
-     * Returns the current commit index.
+     * Returns the playback cursor: the next commit to apply.
+     *
+     * This runs one ahead of the scene while playing. Use
+     * [`Self::applied_commit`] for anything the viewer reads, or the timeline
+     * will describe a commit that has not happened on screen yet.
      * @returns {number}
      */
     currentCommit() {
@@ -1197,6 +1218,70 @@ export class Rource {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
             wasm.rource_getRendererType(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            deferred1_0 = r0;
+            deferred1_1 = r1;
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_export4(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
+     * Authors who have committed up to the current playback position.
+     *
+     * Counts commits applied so far rather than the lifetime total, so the
+     * list grows and re-sorts as playback advances instead of showing the end
+     * state from the first frame.
+     *
+     * ```json
+     * {"total":12,"shown":12,"commits":140,
+     *  "authors":[{"name":"Ada","color":"#e94560","commits":31,"active":true}]}
+     * ```
+     *
+     * `active` marks authors with a user currently present in the scene, so the
+     * UI can distinguish who is committing now from who has gone quiet.
+     * @returns {string}
+     */
+    getSceneAuthors() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.rource_getSceneAuthors(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            deferred1_0 = r0;
+            deferred1_1 = r1;
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_export4(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
+     * File-type counts for the files currently in the scene.
+     *
+     * Returns a JSON object so the caller can distinguish "no files yet" from
+     * "more types than we sent":
+     *
+     * ```json
+     * {"total":128,"shown":9,"distinct":12,"directories":31,
+     *  "types":[{"ext":"js","color":"#f1e05a","count":94}]}
+     * ```
+     *
+     * Sorted by count descending, then by extension for a stable order when
+     * counts tie — without the tiebreak, equal-count entries would swap places
+     * between frames and the list would visibly shuffle.
+     * @returns {string}
+     */
+    getSceneFileTypes() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.rource_getSceneFileTypes(retptr, this.__wbg_ptr);
             var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
             var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
             deferred1_0 = r0;
@@ -3617,7 +3702,7 @@ function __wbg_get_imports() {
                     const a = state0.a;
                     state0.a = 0;
                     try {
-                        return __wasm_bindgen_func_elem_7655(a, state0.b, arg0, arg1);
+                        return __wasm_bindgen_func_elem_7674(a, state0.b, arg0, arg1);
                     } finally {
                         state0.a = a;
                     }
@@ -4634,23 +4719,23 @@ function __wbg_get_imports() {
             getObject(arg0).writeTexture(getObject(arg1), getArrayU8FromWasm0(arg2, arg3), getObject(arg4), getObject(arg5));
         }, arguments); },
         __wbindgen_cast_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 2247, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, __wasm_bindgen_func_elem_7634);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 2249, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, __wasm_bindgen_func_elem_7653);
             return addHeapObject(ret);
         },
         __wbindgen_cast_0000000000000002: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("GPUDevice")], shim_idx: 187, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, __wasm_bindgen_func_elem_1669);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("GPUDevice")], shim_idx: 189, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, __wasm_bindgen_func_elem_1688);
             return addHeapObject(ret);
         },
         __wbindgen_cast_0000000000000003: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("any")], shim_idx: 187, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, __wasm_bindgen_func_elem_1669_2);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("any")], shim_idx: 189, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, __wasm_bindgen_func_elem_1688_2);
             return addHeapObject(ret);
         },
         __wbindgen_cast_0000000000000004: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("undefined")], shim_idx: 187, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, __wasm_bindgen_func_elem_1669_3);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("undefined")], shim_idx: 189, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, __wasm_bindgen_func_elem_1688_3);
             return addHeapObject(ret);
         },
         __wbindgen_cast_0000000000000005: function(arg0) {
@@ -4712,10 +4797,10 @@ function __wbg_get_imports() {
     };
 }
 
-function __wasm_bindgen_func_elem_7634(arg0, arg1, arg2) {
+function __wasm_bindgen_func_elem_7653(arg0, arg1, arg2) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.__wasm_bindgen_func_elem_7634(retptr, arg0, arg1, addHeapObject(arg2));
+        wasm.__wasm_bindgen_func_elem_7653(retptr, arg0, arg1, addHeapObject(arg2));
         var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
         var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
         if (r1) {
@@ -4726,10 +4811,10 @@ function __wasm_bindgen_func_elem_7634(arg0, arg1, arg2) {
     }
 }
 
-function __wasm_bindgen_func_elem_1669(arg0, arg1, arg2) {
+function __wasm_bindgen_func_elem_1688(arg0, arg1, arg2) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.__wasm_bindgen_func_elem_1669(retptr, arg0, arg1, addHeapObject(arg2));
+        wasm.__wasm_bindgen_func_elem_1688(retptr, arg0, arg1, addHeapObject(arg2));
         var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
         var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
         if (r1) {
@@ -4740,10 +4825,10 @@ function __wasm_bindgen_func_elem_1669(arg0, arg1, arg2) {
     }
 }
 
-function __wasm_bindgen_func_elem_1669_2(arg0, arg1, arg2) {
+function __wasm_bindgen_func_elem_1688_2(arg0, arg1, arg2) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.__wasm_bindgen_func_elem_1669_2(retptr, arg0, arg1, addHeapObject(arg2));
+        wasm.__wasm_bindgen_func_elem_1688_2(retptr, arg0, arg1, addHeapObject(arg2));
         var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
         var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
         if (r1) {
@@ -4754,10 +4839,10 @@ function __wasm_bindgen_func_elem_1669_2(arg0, arg1, arg2) {
     }
 }
 
-function __wasm_bindgen_func_elem_1669_3(arg0, arg1, arg2) {
+function __wasm_bindgen_func_elem_1688_3(arg0, arg1, arg2) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.__wasm_bindgen_func_elem_1669_3(retptr, arg0, arg1, addHeapObject(arg2));
+        wasm.__wasm_bindgen_func_elem_1688_3(retptr, arg0, arg1, addHeapObject(arg2));
         var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
         var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
         if (r1) {
@@ -4768,8 +4853,8 @@ function __wasm_bindgen_func_elem_1669_3(arg0, arg1, arg2) {
     }
 }
 
-function __wasm_bindgen_func_elem_7655(arg0, arg1, arg2, arg3) {
-    wasm.__wasm_bindgen_func_elem_7655(arg0, arg1, addHeapObject(arg2), addHeapObject(arg3));
+function __wasm_bindgen_func_elem_7674(arg0, arg1, arg2, arg3) {
+    wasm.__wasm_bindgen_func_elem_7674(arg0, arg1, addHeapObject(arg2), addHeapObject(arg3));
 }
 
 

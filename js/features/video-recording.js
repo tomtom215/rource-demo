@@ -222,7 +222,7 @@ function checkForVisualizationEnd() {
     if (!rource || !isRecording) return;
 
     const total = safeWasmCall('commitCount', () => rource.commitCount(), 0);
-    const current = safeWasmCall('currentCommit', () => rource.currentCommit(), 0);
+    const current = safeWasmCall('appliedCommit', () => rource.appliedCommit(), 0);
     const isPlaying = safeWasmCall('isPlaying', () => rource.isPlaying(), false);
 
     // Check if we've reached the end

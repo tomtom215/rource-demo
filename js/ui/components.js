@@ -13,7 +13,7 @@
  */
 
 import {
-    getShowcasePanelTemplate,
+    getDemoWelcomePanelTemplate,
     getGithubPanelTemplate,
     getManualLoadPanelTemplate,
     getKeyboardShortcutsPanelTemplate,
@@ -34,7 +34,7 @@ import { getHelpTemplate } from './help-template.js';
  */
 export function initComponents() {
     // Sidebar panels (sidebar is hidden by default in analytics view)
-    inject('showcase-panel', getShowcasePanelTemplate);
+    inject('showcase-panel', getDemoWelcomePanelTemplate);
     inject('panel-github', getGithubPanelTemplate);
     inject('panel-manual-load', getManualLoadPanelTemplate);
     inject('panel-shortcuts-body', getKeyboardShortcutsPanelTemplate);

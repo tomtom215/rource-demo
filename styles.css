@@ -2362,6 +2362,88 @@ textarea:focus {
     display: none;
 }
 
+/* =============================================================================
+   Demo Landing Panel
+   -----------------------------------------------------------------------------
+   Replaces the "Visualize This Project" showcase in the published demo. The
+   two things a first-time visitor should be able to act on immediately are the
+   bundled histories and the fact that their own repository never leaves the
+   browser, so both are given real estate rather than being buried in collapsed
+   panels further down the sidebar.
+   ============================================================================= */
+
+.demo-welcome-title {
+    margin: 0 0 var(--spacing-xs);
+    font-size: 1.05rem;
+    font-weight: 650;
+    color: var(--text-primary);
+}
+
+.demo-welcome-subtitle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin: 0 0 var(--spacing-xs);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.demo-welcome-lead {
+    margin: 0 0 var(--spacing-sm);
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.demo-repo-chips {
+    display: grid;
+    /* Two per row at sidebar width, collapsing to one when the sidebar is
+       narrow, rather than a ragged wrap. */
+    grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+    gap: var(--spacing-xs);
+}
+
+.demo-repo-chip {
+    /* Clears the 44px minimum touch target; the shared .repo-chip is sized for
+       a dense secondary list, which is too small for a primary action. */
+    min-height: 44px;
+    justify-content: flex-start;
+    font-size: 0.8125rem;
+}
+
+.demo-welcome-divider {
+    height: 1px;
+    margin: var(--spacing-md) 0;
+    background: var(--border);
+}
+
+.demo-welcome-cta {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+}
+
+/* Brief ring on the drop zone after the landing CTA jumps to it, so the
+   destination is obvious rather than the panel just appearing to change. */
+.file-drop-zone-highlight {
+    animation: drop-zone-attention 1.6s ease-out;
+}
+
+@keyframes drop-zone-attention {
+    0%, 100% { box-shadow: 0 0 0 0 transparent; }
+    20%      { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent); }
+    60%      { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .file-drop-zone-highlight {
+        animation: none;
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+}
+
 
 /* ---- styles/components/skeleton.css ---- */
 /* SPDX-License-Identifier: GPL-3.0-or-later */
@@ -4682,6 +4764,7 @@ header h1 {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    min-width: 0;
 }
 
 .legend-color {
@@ -4694,11 +4777,25 @@ header h1 {
 .legend-ext {
     color: var(--text-secondary);
     flex: 1;
+    /* Flex items are min-width:auto by default, so an unusually long extension
+       would widen the row past the panel instead of truncating. */
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .legend-count {
     color: var(--text-muted);
     font-size: 0.75rem;
+    flex-shrink: 0;
+    /* Counts change every frame; tabular figures stop the column shifting
+       width as digits change. */
+    font-variant-numeric: tabular-nums;
+}
+
+.author-commits {
+    font-variant-numeric: tabular-nums;
 }
 
 /* -----------------------------------------------------------------------------
@@ -4752,12 +4849,6 @@ header h1 {
     z-index: var(--z-canvas-overlays); /* Ensure stats overlay is above canvas for tooltip hover */
 }
 
-.stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
 /* Stats with tooltips should show help cursor */
 .stat-item[title] {
     cursor: help;
@@ -4775,6 +4866,31 @@ header h1 {
     font-size: 0.75rem; /* 12px minimum - WCAG compliance */
     text-transform: uppercase;
 }
+
+/* Repository total shown after the live count, e.g. "162 / 5,673".
+   Muted and lighter so the on-screen figure stays the one you read first. */
+.stat-total {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Grid rather than a column flex: the live value and its total need to share
+   one line, with the label centred beneath both. */
+.stat-item {
+    display: grid;
+    grid-template-areas:
+        "value total"
+        "label label";
+    justify-items: center;
+    align-items: baseline;
+    column-gap: 0.2rem;
+}
+
+.stat-value { grid-area: value; }
+.stat-total { grid-area: total; }
+.stat-label { grid-area: label; }
 
 /* =============================================================================
    Performance Overlay (FPS, metrics)
@@ -5153,6 +5269,55 @@ header h1 {
     color: var(--text-muted);
     font-size: 0.75rem; /* 12px - WCAG minimum */
     flex-shrink: 0;
+}
+
+/* =============================================================================
+   Live Legend
+   -----------------------------------------------------------------------------
+   The File Types and Authors panels track the scene frame by frame, so rows
+   appear, re-sort and re-count while playback runs. These rules make that
+   readable: a brief tint marks a count that just changed, so the eye can follow
+   which type or contributor is moving without the list appearing to jitter on
+   its own.
+   ============================================================================= */
+
+@keyframes legend-row-pulse {
+    from { background-color: color-mix(in srgb, var(--accent) 22%, transparent); }
+    to   { background-color: transparent; }
+}
+
+.legend-row-changed {
+    animation: legend-row-pulse 600ms ease-out;
+    border-radius: 4px;
+}
+
+/* Contributors with a user still present in the scene. The dimming is applied
+   to everyone else rather than brightening the active few, so the panel does
+   not flash as users fade in and out between commits. */
+.author-item:not(.author-item-active) .author-name,
+.author-item:not(.author-item-active) .author-commits {
+    opacity: 0.62;
+}
+
+.author-item-active .author-name {
+    color: var(--text-interactive, var(--text-primary));
+}
+
+/* Footer noting rows the panel is not showing. Both lists cap their length;
+   without this the list simply stopped, giving no hint more existed. */
+.legend-summary {
+    margin-top: 0.4rem;
+    padding-top: 0.35rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.6875rem; /* 11px - supporting metadata, not body copy */
+    text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .legend-row-changed {
+        animation: none;
+    }
 }
 
 

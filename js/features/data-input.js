@@ -460,7 +460,7 @@ function generateShareableUrl() {
 
     // Add current commit position
     if (rource && hasData()) {
-        const current = safeWasmCall('currentCommit', () => rource.currentCommit(), 0);
+        const current = safeWasmCall('appliedCommit', () => rource.appliedCommit(), 0);
         const total = safeWasmCall('commitCount', () => rource.commitCount(), 0);
         if (current > 0 && current < total - 1) {
             params.set('commit', current.toString());

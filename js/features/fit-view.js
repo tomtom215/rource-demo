@@ -44,4 +44,42 @@ export function initFitView() {
             addManagedEventListener(btn, 'click', () => fitViewToContent(true));
         }
     }
+
+    initLoadOwnShortcut();
+}
+
+/**
+ * Wires the demo landing panel's "Visualize your repository" button.
+ *
+ * The upload flow already existed but lived behind a collapsed panel and a
+ * non-default tab, so the one capability worth advertising — that a private
+ * repository can be visualized without anything leaving the browser — was
+ * effectively hidden. This jumps straight to it.
+ *
+ * Present only in the demo build, hence the null check.
+ */
+function initLoadOwnShortcut() {
+    const btn = document.getElementById('btn-demo-load-own');
+    if (!btn) return;
+
+    addManagedEventListener(btn, 'click', () => {
+        const panel = document.getElementById('panel-manual-load');
+        if (!panel) return;
+
+        panel.classList.remove('collapsed');
+
+        // Switch to the Upload File tab. The tab controller keys off
+        // data-tab, so clicking the button drives the same code path as the
+        // user selecting it.
+        const uploadTab = panel.querySelector('.tab-btn[data-tab="upload"]');
+        if (uploadTab) uploadTab.click();
+
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        const dropZone = document.getElementById('file-drop-zone');
+        if (dropZone) {
+            dropZone.classList.add('file-drop-zone-highlight');
+            setTimeout(() => dropZone.classList.remove('file-drop-zone-highlight'), 1600);
+        }
+    });
 }
